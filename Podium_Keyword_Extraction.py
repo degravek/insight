@@ -1,3 +1,7 @@
+# This code was created to automatically parse online reviews for the Podium company. The
+# The code extracts topics of interest from the reviews, along with their associated
+# sentiment.
+
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from gensim.summarization import summarize, keywords
 from nltk.stem.wordnet import WordNetLemmatizer
@@ -120,7 +124,6 @@ def SortMatrix(in_matrix, rfilter=None):
     group2 = in_matrix.groupby(['aspects'])['counts'].mean()
     group3 = in_matrix.groupby(['aspects'])['sentiment'].mean()
     sorted_mat = pd.DataFrame()
-    #sorted_mat['sent_sum']   = np.round(group1, 2)
     sorted_mat['counts']     = group2
     sorted_mat['frac']       = np.round(100*(group2/group2.sum()), 2)
     sorted_mat['sent_mean']  = np.round(group3, 2)
@@ -162,7 +165,9 @@ import rake, operator
 # text at least one time
 rake_object = rake.Rake(rake_path + 'SmartStoplist.txt', 4, 3, 1)
 
-def ProcessData(df, ptype):
+# Define a function to extract keywords from the reviews
+# This function breaks each review into 
+def ProcessReviews(df, ptype):
     parse_type = ptype
 
     # Divide reviews into individual sentences
@@ -214,24 +219,27 @@ def ProcessData(df, ptype):
     matrix = matrix[(matrix['sentiment'] != 0)]
     return matrix
 
-# Process the data using RAKE,
-# n-grams, and noun-phrases
-matrix_rake = ProcessData(df, 'rake')
-matrix_chunk = ProcessData(df, 'chunk')
-matrix_ngram1 = ProcessData(df, ('ngram',1))
-matrix_ngram2 = ProcessData(df, ('ngram',2))
-matrix_ngram3 = ProcessData(df, ('ngram',3))
+# Process the data using RAKE, n-grams, and
+# noun-phrases. If capturing n-grams, pass
+# ProcessReviews a tuple with the n-gram value
+matrix_rake = ProcessReviews(df, 'rake')
+matrix_chunk = ProcessReviews(df, 'chunk')
+matrix_ngram1 = ProcessReviews(df, ('ngram',1))
+matrix_ngram2 = ProcessReviews(df, ('ngram',2))
+matrix_ngram3 = ProcessReviews(df, ('ngram',3))
 
-# Sort by weighted sum of sentiment
+# Sort by weighted sum of sentiment.
+# These contain extracted topics,
+# along with their sentiment
 sorted_rake = SortMatrix(matrix_rake)
 sorted_chunk = SortMatrix(matrix_chunk)
 sorted_ngram1 = SortMatrix(matrix_ngram1)
 sorted_ngram2 = SortMatrix(matrix_ngram2)
 sorted_ngram3 = SortMatrix(matrix_ngram3)
 
-# Create and search for aspects
-# Input two static aspects, and grab the top
-# three dynamic ones from sorted_ngram1
+# Create and search for aspects. Input two
+# static aspects (unigrams), and grab the
+# top three dynamic ones from sorted_ngram1
 static_aspects  = ['value', 'service']
 dynamic_aspects = sorted_ngram1['aspects'][:3] # Choose three dynamic aspects
 
