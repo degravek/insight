@@ -1,6 +1,5 @@
-# This code was created to automatically parse online reviews for the Podium company. The
-# The code extracts topics of interest from the reviews, along with their associated
-# sentiment.
+# This code was created to automatically parse online reviews for the Podium company.
+# The code extracts topics of interest from the reviews, along with their sentiment.
 
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from gensim.summarization import summarize, keywords
