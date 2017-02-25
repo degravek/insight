@@ -108,41 +108,41 @@ def extract_candidate_chunks(text, grammar = 'CHUNK: {<JJ.*>*<NN.*>+}'):
             tree = parser.parse(chunk)
             for subtree in tree.subtrees():
                 if subtree.label() == 'CHUNK':
-                    candidates.append((' '.join([a for (a,b) in subtree.leaves()])))
+                    candidates.append(('_'.join([word for (word, tag) in subtree.leaves()])))
     candidates = [word for word in candidates if word not in stop]
     return candidates
 
 # Define a function to sort the aspects
 # by weighted sum of sentiment
-def SortMatrix(in_matrix, rfilter=None):
+def SortData(input_df, rfilter=None):
     if rfilter:
-        in_matrix = in_matrix[in_matrix['rating'].isin(rfilter)].copy()
+        input_df = input_df[input_df['rating'].isin(rfilter)].copy()
 
-    in_matrix['counts'] = in_matrix.groupby(['aspects'])['sentiment'].transform('count')
-    group1 = in_matrix.groupby(['aspects'])['sentiment'].sum()
-    group2 = in_matrix.groupby(['aspects'])['counts'].mean()
-    group3 = in_matrix.groupby(['aspects'])['sentiment'].mean()
-    sorted_mat = pd.DataFrame()
-    sorted_mat['counts']     = group2
-    sorted_mat['frac']       = np.round(100*(group2/group2.sum()), 2)
-    sorted_mat['sent_mean']  = np.round(group3, 2)
-    sorted_mat['importance'] = np.round(group1/(group2**0.1), 2)
-    sorted_mat = sorted_mat.sort_values('importance', ascending=False)
-    sorted_mat.reset_index(level=0, inplace=True)
-    return sorted_mat
+    input_df['counts'] = input_df.groupby(['aspects'])['sentiment'].transform('count')
+    group1 = input_df.groupby(['aspects'])['sentiment'].sum()
+    group2 = input_df.groupby(['aspects'])['counts'].mean()
+    group3 = input_df.groupby(['aspects'])['sentiment'].mean()
+    sorted_df = pd.DataFrame()
+    sorted_df['counts']     = group2
+    sorted_df['frac']       = np.round(100*(group2/group2.sum()), 2)
+    sorted_df['sent_mean']  = np.round(group3, 2)
+    sorted_df['importance'] = np.round(group1/(group2**0.1), 2)
+    sorted_df = sorted_df.sort_values('importance', ascending=False)
+    sorted_df.reset_index(level=0, inplace=True)
+    return sorted_df
 
 # Define function to summarize
 # reviews about certain aspects
-def SummarizeReviews(matrix, aspect_list, n_statements):
+def SummarizeReviews(input_df, aspect_list, n_statements):
     # Try to summarize the aspects
     star_rating, summary = [], []
     for i, aspect in enumerate(aspect_list):
-        rating = matrix.groupby('aspects')['sentiment'].mean().sort_values(ascending=False)[aspect]
+        rating = input_df.groupby('aspects')['sentiment'].mean().sort_values(ascending=False)[aspect]
         star_rating.append((rating - (-1))*(5 - 1)/(1 - (-1)) + 1)
 
         # Try to process the text a little bit
         corpus = pd.DataFrame()
-        corpus['text'] = matrix[(matrix['aspects']==aspect)].sort_values('sentiment', ascending=False)['context']
+        corpus['text'] = input_df[(input_df['aspects']==aspect)].sort_values('sentiment', ascending=False)['context']
         #corpus = corpus.head(num).append(corpus.tail(num))
         corpus = corpus.sample(n=n_statements)
         corpus = list(corpus['text'].apply(process))
@@ -153,15 +153,15 @@ def SummarizeReviews(matrix, aspect_list, n_statements):
     return corpus
 
 # Add the path to where RAKE was downloaded
-rake_path = '/Users/degravek/Downloads/RAKE-tutorial-master/'
 import sys
+rake_path = '/Users/degravek/Downloads/RAKE-tutorial-master/'
 sys.path.insert(0, rake_path)
-import rake, operator
 
 # RAKE will look for key phrases with
 # at least four characters, composed
 # of at most 3 words, appearing in the
-# text at least one time
+# test at least one time
+import rake, operator
 rake_object = rake.Rake(rake_path + 'SmartStoplist.txt', 4, 3, 1)
 
 # Define a function to extract keywords from the reviews
@@ -195,7 +195,7 @@ def ProcessReviews(df, ptype):
                 pos = extract_candidate_chunks(sent_pro)
             elif parse_type == 'rake':
                 pos = rake_object.run(sent_raw)
-                pos = [word[0] for word in pos]
+                pos = ['_'.join(word[0].split()) for word in pos]
             for j in pos:
                 d1.append(df['date'][i])
                 d2.append(df['location'][i])
@@ -205,36 +205,36 @@ def ProcessReviews(df, ptype):
                 d6.append(sent_raw)
 
     # Put everything in a dataframe
-    matrix = pd.DataFrame()
-    matrix['date']      = d1
-    matrix['location']  = d2
-    matrix['rating']    = d3
-    matrix['aspects']   = d4
-    matrix['sentiment'] = d5
-    matrix['context']   = d6
+    processed_df = pd.DataFrame()
+    processed_df['date']      = d1
+    processed_df['location']  = d2
+    processed_df['rating']    = d3
+    processed_df['aspects']   = d4
+    processed_df['sentiment'] = d5
+    processed_df['context']   = d6
 
     # Remove any entry where the sentence
     # was determined to be neutral
-    matrix = matrix[(matrix['sentiment'] != 0)]
-    return matrix
+    processed_df = processed_df[(processed_df['sentiment'] != 0)]
+    return processed_df
 
 # Process the data using RAKE, n-grams, and
 # noun-phrases. If capturing n-grams, pass
 # ProcessReviews a tuple with the n-gram value
-matrix_rake = ProcessReviews(df, 'rake')
-matrix_chunk = ProcessReviews(df, 'chunk')
-matrix_ngram1 = ProcessReviews(df, ('ngram',1))
-matrix_ngram2 = ProcessReviews(df, ('ngram',2))
-matrix_ngram3 = ProcessReviews(df, ('ngram',3))
+df_rake = ProcessReviews(df, 'rake')
+df_chunk = ProcessReviews(df, 'chunk')
+df_ngram1 = ProcessReviews(df, ('ngram',1))
+df_ngram2 = ProcessReviews(df, ('ngram',2))
+df_ngram3 = ProcessReviews(df, ('ngram',3))
 
 # Sort by weighted sum of sentiment.
 # These contain extracted topics,
 # along with their sentiment
-sorted_rake = SortMatrix(matrix_rake)
-sorted_chunk = SortMatrix(matrix_chunk)
-sorted_ngram1 = SortMatrix(matrix_ngram1)
-sorted_ngram2 = SortMatrix(matrix_ngram2)
-sorted_ngram3 = SortMatrix(matrix_ngram3)
+sorted_rake = SortData(df_rake)
+sorted_chunk = SortData(df_chunk)
+sorted_ngram1 = SortData(df_ngram1)
+sorted_ngram2 = SortData(df_ngram2)
+sorted_ngram3 = SortData(df_ngram3)
 
 # Create and search for aspects. Input two
 # static aspects (unigrams), and grab the
@@ -242,9 +242,9 @@ sorted_ngram3 = SortMatrix(matrix_ngram3)
 static_aspects  = ['value', 'service']
 dynamic_aspects = sorted_ngram1['aspects'][:3] # Choose three dynamic aspects
 
-# Aspects above are unigrams, so use matrix_ngram1
-# Sort them by their frequency in matrix_ngram1
-count = Counter(matrix_ngram1['aspects'])
+# Aspects above are unigrams, so use df_ngram1
+# Sort them by their frequency in df_ngram1
+count = Counter(df_ngram1['aspects'])
 s = [(x, count[x]) for x in static_aspects]
 s = sorted(s, key=lambda x: x[1], reverse=True)
 d = [(x, count[x]) for x in dynamic_aspects]
@@ -259,4 +259,4 @@ merged = [x for x in merged if not (x in seen or seen_add(x))]
 aspects = list([ii for ii in zip(*merged)][0])
 
 # Summarize reviews
-summary = SummarizeReviews(matrix_ngram1, aspects, 5)
+summary = SummarizeReviews(df_ngram1, aspects, 5)
