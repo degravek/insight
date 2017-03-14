@@ -1,13 +1,15 @@
 from math import pi
 import pandas as pd
 import numpy as np
+import seaborn as sns
 from bokeh import mpl
+np.random.seed(0)
 
 from bokeh.io import curdoc
 from bokeh.charts import Bar
 from bokeh.charts.attributes import ColorAttr, CatAttr
-from bokeh.models import ColumnDataSource, Select, Slider
-from bokeh.models.widgets import Range1d, Panel, Tabs, DataTable
+from bokeh.models import ColumnDataSource, Select, Slider, Range1d
+from bokeh.models.widgets import Panel, Tabs, DataTable
 from bokeh.models.widgets import TableColumn, CheckboxGroup, TextInput
 from bokeh.layouts import layout, widgetbox, row, column
 from bokeh.plotting import figure
