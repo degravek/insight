@@ -4,7 +4,7 @@ This respository contains my Insight Data Science project code. The code is in P
 
 Directory bokeh_application/ contains the source code for a Bokeh application called keyword_extraction.py, which can be used to visualize the output of Podium_Keyword_Extraction.py. To run the application, a couple of things must be done first:
 
-* Install the Bokeh library by running '''pip install bokeh''' from the terminal command line.
+* Install the Bokeh library by running ```pip install bokeh``` from the terminal command line.
 * Download the bokeh_application/ directory.
 
 In bokeh_application/ there is a directory called processed_data/ which contains the output of Podium_Keyword_Extraction.py necessary to run the application. 
