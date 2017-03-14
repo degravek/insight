@@ -9,10 +9,10 @@ Directory bokeh_application/ contains the source code for a Bokeh application ca
 
 In bokeh_application/ there is a directory called processed_data/ which contains the output of Podium_Keyword_Extraction.py necessary to run the application. 
 
-* Open file keyword_extraction.py and change the file paths at the top to where processed_data/ is located.
+* Open file keyword_extraction.py and change the file paths at the top to where the processed_data/ files are located.
 
 To run the application, cd to where the file keyword_extraction.py is located, and in the terminal type:
 
 * ```bokeh serve --show keyword_extraction.py```
 
-The application will run on a Bokeh server, and can be found at ```http://localhost:5006/keyword_extraction.py```
+The application will run on a Bokeh server, and can be found at ```http://localhost:5006/keyword_extraction.py```.
