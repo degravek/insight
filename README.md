@@ -13,4 +13,4 @@ In bokeh_application/ there is a directory called processed_data/ which contains
 
 To run the application, cd to where the file keyword_extraction.py is located, and in the terminal command line, type
 
-* bokeh serve --show keyword_extraction.py
+* ```bokeh serve --show keyword_extraction.py```
