@@ -1,9 +1,7 @@
 from math import pi
 import pandas as pd
 import numpy as np
-import seaborn as sns
 from bokeh import mpl
-np.random.seed(0)
 
 from bokeh.io import curdoc
 from bokeh.charts import Bar
