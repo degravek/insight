@@ -9,7 +9,7 @@ Directory bokeh_application/ contains the source code for a Bokeh application ca
 
 In bokeh_application/ there is a directory called processed_data/ which contains the output of Podium_Keyword_Extraction.py necessary to run the application. 
 
-* Open file keyword_extraction.py and change the file paths at the top to where the processed_data/ files are located.
+* Open file keyword_extraction.py, and change the file paths at the top to where the processed_data/ files are located.
 
 To run the application, cd to where the file keyword_extraction.py is located, and in the terminal type:
 
