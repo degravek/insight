@@ -1,5 +1,6 @@
-# This code was created to automatically parse online reviews for the Podium company.
-# The code extracts topics of interest from the reviews, along with their sentiment.
+# This code was created to automatically parse online reviews
+# for the Podium company. The code extracts topics of interest
+# from the reviews, along with their sentiment.
 
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from gensim.summarization import summarize, keywords
@@ -164,8 +165,8 @@ sys.path.insert(0, rake_path)
 import rake, operator
 rake_object = rake.Rake(rake_path + 'SmartStoplist.txt', 4, 3, 1)
 
-# Define a function to extract keywords from the reviews
-# This function breaks each review into 
+# Define a function to extract keywords from the reviews.
+# This function breaks each review into sentences.
 def ProcessReviews(df, ptype):
     parse_type = ptype
 
